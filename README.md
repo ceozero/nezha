@@ -80,6 +80,9 @@ You can change the dashboard language in the settings page (`/setting`) after th
 <a href="https://github.com/spiritLHLS" title="spiritlhl">
   <img src="https://avatars.githubusercontent.com/u/103393591?v=4" width="50;" alt="spiritlhl"/>
 </a>
+<a href="https://github.com/ceozero" title="ceozero">
+  <img src="https://avatars.githubusercontent.com/u/22513657?v=4" width="50;" alt="ceozero"/>
+</a>
 <a href="https://github.com/rootmelo92118" title="rootmelo92118">
   <img src="https://avatars.githubusercontent.com/u/32770959?v=4" width="50;" alt="rootmelo92118"/>
 </a>
@@ -94,9 +97,6 @@ You can change the dashboard language in the settings page (`/setting`) after th
 </a>
 <a href="https://github.com/Mmx233" title="Mmx">
   <img src="https://avatars.githubusercontent.com/u/36563672?v=4" width="50;" alt="Mmx"/>
-</a>
-<a href="https://github.com/ceozero" title="ceozero">
-  <img src="https://avatars.githubusercontent.com/u/22513657?v=4" width="50;" alt="ceozero"/>
 </a>
 <a href="https://github.com/ch8o" title="no-name-now">
   <img src="https://avatars.githubusercontent.com/u/9103372?v=4" width="50;" alt="no-name-now"/>

@@ -3,7 +3,7 @@ package i18n
 import (
 	"embed"
 	"fmt"
-	"sync"
+	"sync/atomic"
 
 	"github.com/chai2010/gettext-go"
 )
@@ -20,10 +20,8 @@ var Languages = map[string]string{
 }
 
 type Localizer struct {
-	intlMap map[string]gettext.Gettexter
-	lang    string
-
-	mu sync.RWMutex
+	intlMap atomic.Pointer[map[string]gettext.Gettexter]
+	lang    atomic.Pointer[string]
 }
 
 func NewLocalizer(lang, domain, path string, data any) *Localizer {
@@ -33,42 +31,42 @@ func NewLocalizer(lang, domain, path string, data any) *Localizer {
 	intlMap := make(map[string]gettext.Gettexter)
 	intlMap[lang] = intl
 
-	return &Localizer{intlMap: intlMap, lang: lang}
+	l := new(Localizer)
+	l.intlMap.Store(&intlMap)
+	l.lang.Store(&lang)
+
+	return l
 }
 
 func (l *Localizer) SetLanguage(lang string) {
-	l.mu.Lock()
-	defer l.mu.Unlock()
-
-	l.lang = lang
+	l.lang.Store(&lang)
 }
 
 func (l *Localizer) Exists(lang string) bool {
-	l.mu.RLock()
-	defer l.mu.RUnlock()
-
-	if _, ok := l.intlMap[lang]; ok {
-		return ok
-	}
-	return false
+	m := *l.intlMap.Load()
+	_, ok := m[lang]
+	return ok
 }
 
 func (l *Localizer) AppendIntl(lang, domain, path string, data any) {
 	intl := gettext.New(domain, path, data)
 	intl.SetLanguage(lang)
 
-	l.mu.Lock()
-	defer l.mu.Unlock()
+	m := *l.intlMap.Load()
+	newMap := make(map[string]gettext.Gettexter, len(m)+1)
+	for k, v := range m {
+		newMap[k] = v
+	}
+	newMap[lang] = intl
 
-	l.intlMap[lang] = intl
+	l.intlMap.Store(&newMap)
 }
 
 // Modified from k8s.io/kubectl/pkg/util/i18n
 
 func (l *Localizer) T(orig string) string {
-	l.mu.RLock()
-	intl, ok := l.intlMap[l.lang]
-	l.mu.RUnlock()
+	m := *l.intlMap.Load()
+	intl, ok := m[*l.lang.Load()]
 	if !ok {
 		return orig
 	}
@@ -80,9 +78,8 @@ func (l *Localizer) T(orig string) string {
 // the way. If len(args) is > 0, args1 is assumed to be the plural value
 // and plural translation is used.
 func (l *Localizer) N(orig string, args ...int) string {
-	l.mu.RLock()
-	intl, ok := l.intlMap[l.lang]
-	l.mu.RUnlock()
+	m := *l.intlMap.Load()
+	intl, ok := m[*l.lang.Load()]
 	if !ok {
 		return orig
 	}
